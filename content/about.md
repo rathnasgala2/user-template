@@ -8,9 +8,8 @@ language: en-US
 authors:
   - 00000000-0000-7000-8000-000000000002
 tags: []
-status: published
+status: draft
 createdAt: '2026-09-27T00:00:00.000Z'
-publishedAt: '2026-09-27T00:00:00.000Z'
 slug: about
 redirects: []
 extensions: {}

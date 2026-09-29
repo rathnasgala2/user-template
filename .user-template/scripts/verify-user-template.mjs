@@ -2,11 +2,9 @@
 /**
  * Verifies this user template repository the same way Galascribe verifies any
  * generated publication repository: every Gala document schema-valid,
- * every content file's frontmatter schema-valid, the real
- * `@rathnasgala2/publish-action` `validate` and `build` commands succeeding
- * against this directory, the welcome article's text present in the built
- * HTML, and the caller workflow byte-identical to `publish`'s published
- * contract.
+ * every content file's frontmatter schema-valid and honestly marked draft,
+ * the real `@rathnasgala2/publish-action` refusing those untouched drafts,
+ * and the caller workflow byte-identical to `publish`'s published contract.
  *
  * This file lives under `.user-template/` together with `USER-TEMPLATE.md` because it
  * is workspace-development tooling, not something a person's generated
@@ -121,9 +119,14 @@ async function main() {
       Boolean(result.valid),
       result.valid ? undefined : JSON.stringify(result.diagnostics),
     );
+    report(
+      `starter state: content/${name}`,
+      frontmatter.status === 'draft' && frontmatter.publishedAt === undefined,
+      `status=${String(frontmatter.status)} publishedAt=${String(frontmatter.publishedAt)}`,
+    );
   }
 
-  // 3. Run the real publish-action `validate` command.
+  // 3. The real publish command must refuse the untouched draft starters.
   const { runValidate } = await import(
     pathToFileURL(
       path.join(publishActionRoot, 'src', 'commands', 'validate.js'),
@@ -131,53 +134,15 @@ async function main() {
   );
   const validateResult = await runValidate({ repositoryDirectory });
   report(
-    'publish-action validate',
-    validateResult.resultCode === 'SUCCESS',
+    'publish-action refuses draft starters',
+    validateResult.resultCode !== 'SUCCESS' &&
+      validateResult.findings?.every(
+        (finding) => finding.code === 'CONTENT_STATUS_UNSUPPORTED',
+      ),
     JSON.stringify(validateResult.findings ?? []),
   );
 
-  // 4. Run the real publish-action `build` command.
-  const { runBuild } = await import(
-    pathToFileURL(path.join(publishActionRoot, 'src', 'commands', 'build.js'))
-      .href,
-  );
-  const outputDirectory = path.join(
-    repositoryDirectory,
-    '.gala',
-    'verify-output',
-  );
-  const workDirectory = path.join(repositoryDirectory, '.gala', 'verify-work');
-  const buildResult = await runBuild({
-    repositoryDirectory,
-    outputDirectory,
-    workDirectory,
-  });
-  report(
-    'publish-action build',
-    buildResult.resultCode === 'SUCCESS',
-    JSON.stringify(buildResult.findings ?? []),
-  );
-
-  // 5. Confirm the welcome article's text made it into the built HTML.
-  if (buildResult.resultCode === 'SUCCESS') {
-    const welcomeHtmlPath = path.join(
-      outputDirectory,
-      'welcome-to-your-publication',
-      'index.html',
-    );
-    const html = await readFile(welcomeHtmlPath, 'utf8');
-    report(
-      'welcome article text present in built HTML',
-      html.includes(
-        'This is the first article in your new Galascribe publication',
-      ),
-      welcomeHtmlPath,
-    );
-  } else {
-    report('welcome article text present in built HTML', false, 'build did not succeed');
-  }
-
-  // 6. The caller workflow must be byte-identical to publish's own contract.
+  // 4. The caller workflow must be byte-identical to publish's own contract.
   const callerPath = path.join(
     repositoryDirectory,
     '.github',
@@ -199,6 +164,18 @@ async function main() {
     'caller workflow byte-identical to publish/docs/callers/gala-publish-v2.yml',
     digest(callerBytes) === digest(contractBytes),
     `${digest(callerBytes)} vs ${digest(contractBytes)}`,
+  );
+  const callerPin = callerBytes
+    .toString('utf8')
+    .match(/rathnasgala2\/publish\/\.github\/workflows\/publish-v2\.yml@([0-9a-f]{40})/)?.[1];
+  const templateGuide = await readFile(
+    path.join(repositoryDirectory, '.user-template', 'USER-TEMPLATE.md'),
+    'utf8',
+  );
+  report(
+    'USER-TEMPLATE.md documents the caller workflow pin',
+    callerPin !== undefined && templateGuide.includes(`\`${callerPin}\``),
+    callerPin,
   );
 
   console.log('');
