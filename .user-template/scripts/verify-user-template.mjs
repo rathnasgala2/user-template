@@ -3,8 +3,9 @@
  * Verifies this user template repository the same way Galascribe verifies any
  * generated publication repository: every Gala document schema-valid,
  * every content file's frontmatter schema-valid and honestly marked draft,
- * the real `@rathnasgala2/publish-action` refusing those untouched drafts,
- * and the caller workflow byte-identical to `publish`'s published contract.
+ * the real `@rathnasgala2/publish-action` admitting those drafts only as
+ * unlisted candidate content, and the caller workflow byte-identical to
+ * `publish`'s published contract.
  *
  * This file lives under `.user-template/` together with `USER-TEMPLATE.md` because it
  * is workspace-development tooling, not something a person's generated
@@ -126,20 +127,30 @@ async function main() {
     );
   }
 
-  // 3. The real publish command must refuse the untouched draft starters.
-  const { runValidate } = await import(
+  // 3. Candidate normalization must admit untouched drafts only as unlisted
+  // preview content; the source files themselves remain draft.
+  const { buildBuildInputFromRepository } = await import(
     pathToFileURL(
-      path.join(publishActionRoot, 'src', 'commands', 'validate.js'),
+      path.join(
+        publishActionRoot,
+        'src',
+        'normalize',
+        'repository-intake.js',
+      ),
     ).href
   );
-  const validateResult = await runValidate({ repositoryDirectory });
+  const candidateInput = await buildBuildInputFromRepository({
+    repositoryDirectory,
+    includeDraftsAsUnlisted: true,
+  });
+  const candidateContent = /** @type {{frontmatter?: {status?: string}}[]} */ (
+    candidateInput.content
+  );
   report(
-    'publish-action refuses draft starters',
-    validateResult.resultCode !== 'SUCCESS' &&
-      validateResult.findings?.every(
-        (finding) => finding.code === 'CONTENT_STATUS_UNSUPPORTED',
-      ),
-    JSON.stringify(validateResult.findings ?? []),
+    'publish-action renders draft starters only as unlisted candidates',
+    candidateContent.length === contentFiles.length &&
+      candidateContent.every((item) => item.frontmatter?.status === 'unlisted'),
+    JSON.stringify(candidateContent.map((item) => item.frontmatter?.status)),
   );
 
   // 4. The caller workflow must be byte-identical to publish's own contract.
