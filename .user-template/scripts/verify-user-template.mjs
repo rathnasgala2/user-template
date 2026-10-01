@@ -2,9 +2,9 @@
 /**
  * Verifies this user template repository the same way Galascribe verifies any
  * generated publication repository: every Gala document schema-valid,
- * every content file's frontmatter schema-valid and honestly marked draft,
- * the real `@rathnasgala2/publish-action` admitting those drafts only as
- * unlisted candidate content, and the caller workflow byte-identical to
+ * every content file's frontmatter schema-valid and initially publishable,
+ * the real `@rathnasgala2/publish-action` admitting those starters in a
+ * production publish, and the caller workflow byte-identical to
  * `publish`'s published contract.
  *
  * This file lives under `.user-template/` together with `USER-TEMPLATE.md` because it
@@ -122,13 +122,15 @@ async function main() {
     );
     report(
       `starter state: content/${name}`,
-      frontmatter.status === 'draft' && frontmatter.publishedAt === undefined,
+      frontmatter.status === 'published' &&
+        typeof frontmatter.publishedAt === 'string',
       `status=${String(frontmatter.status)} publishedAt=${String(frontmatter.publishedAt)}`,
     );
   }
 
-  // 3. Candidate normalization must admit untouched drafts only as unlisted
-  // preview content; the source files themselves remain draft.
+  // 3. Publish normalization must admit every starter. A generated repository
+  // that contains only these files must be publishable without a hidden
+  // visibility edit first.
   const { buildBuildInputFromRepository } = await import(
     pathToFileURL(
       path.join(
@@ -139,18 +141,18 @@ async function main() {
       ),
     ).href
   );
-  const candidateInput = await buildBuildInputFromRepository({
+  const publishInput = await buildBuildInputFromRepository({
     repositoryDirectory,
-    includeDraftsAsUnlisted: true,
+    includeDraftsAsUnlisted: false,
   });
-  const candidateContent = /** @type {{frontmatter?: {status?: string}}[]} */ (
-    candidateInput.content
+  const publishContent = /** @type {{frontmatter?: {status?: string}}[]} */ (
+    publishInput.content
   );
   report(
-    'publish-action renders draft starters only as unlisted candidates',
-    candidateContent.length === contentFiles.length &&
-      candidateContent.every((item) => item.frontmatter?.status === 'unlisted'),
-    JSON.stringify(candidateContent.map((item) => item.frontmatter?.status)),
+    'publish-action includes every published starter in a production publish',
+    publishContent.length === contentFiles.length &&
+      publishContent.every((item) => item.frontmatter?.status === 'published'),
+    JSON.stringify(publishContent.map((item) => item.frontmatter?.status)),
   );
 
   // 4. The caller workflow must be byte-identical to publish's own contract.
