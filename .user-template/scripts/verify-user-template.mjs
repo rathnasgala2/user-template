@@ -92,6 +92,22 @@ async function main() {
     );
   }
 
+  const lock = JSON.parse(
+    await readFile(path.join(repositoryDirectory, 'gala.lock.json'), 'utf8'),
+  );
+  const selectedAdapters = lock.publisher.filter((entry) =>
+    /^@rathnasgala2\/adapter-(?:local-directory|github-pages|do-spaces)$/u.test(
+      entry.package,
+    ),
+  );
+  report(
+    'lock selects exactly GitHub Pages adapter 0.1.1',
+    selectedAdapters.length === 1 &&
+      selectedAdapters[0].package === '@rathnasgala2/adapter-github-pages' &&
+      selectedAdapters[0].version === '0.1.1',
+    JSON.stringify(selectedAdapters),
+  );
+
   // 2. Schema-validate every content file's frontmatter.
   const require = createRequire(
     pathToFileURL(path.join(publishActionRoot, 'package.json')).href,

@@ -73,9 +73,9 @@ tell you exactly what to change.
 
 ## Publishing destinations
 
-- **GitHub Pages** (the default): there is nothing extra to set up. Turning
-  on GitHub Pages for this repository is handled by Galascribe as part of
-  publishing.
+- **GitHub Pages** (the default): there is nothing extra to set up. Galascribe
+  configures this repository for GitHub Pages when you select the destination;
+  publishing then builds and deploys the site.
 - **DigitalOcean Spaces**: not offered yet. If you see references to it in
   this repository's files, they are not active for you — Galascribe will
   tell you when this destination becomes available and what you'd need to

@@ -60,7 +60,7 @@
       "compatibleWith": "^2.0.0"
     },
     {
-      "package": "@rathnasgala2/adapter-local-directory",
+      "package": "@rathnasgala2/adapter-github-pages",
       "version": "0.1.1",
       "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000007",
       "registry": "https://local-development.invalid/rathnasgala2/",
