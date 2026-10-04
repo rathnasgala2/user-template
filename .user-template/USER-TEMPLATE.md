@@ -66,7 +66,7 @@ following exactly the shape of
 (the real fixture the package's own tests exercise), with real package
 versions substituted where they are known from this workspace's checkouts:
 `@rathnasgala2/schemas@2.11.0` (the registry version `publish-action`
-actually pins and installs), `@rathnasgala2/template@2.1.0`,
+actually pins and installs), `@rathnasgala2/template@2.2.0`,
 `@rathnasgala2/theme-default@2.1.0`, `@rathnasgala2/publish-action@0.1.0`,
 `@rathnasgala2/publish-kernel@0.1.1`, `@rathnasgala2/adapter-protocol@0.2.1`
 and `@rathnasgala2/adapter-github-pages@0.1.1`. The `integrity` digests
