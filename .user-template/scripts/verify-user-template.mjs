@@ -72,6 +72,7 @@ async function main() {
     ['urn:gala:schema:publication:2.0.0', 'gala/publication.json'],
     ['urn:gala:schema:navigation:2.0.0', 'gala/navigation.json'],
     ['urn:gala:schema:appearance:2.0.0', 'gala/appearance.json'],
+    ['urn:gala:schema:interactions-config:2.0.0', 'gala/modules/interactions.json'],
     ['urn:gala:schema:lock:2.0.0', 'gala.lock.json'],
   ];
   const authorFiles = await readdir(
