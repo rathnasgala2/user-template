@@ -54,6 +54,7 @@ in the files themselves.
   already there with your own name and short biography.
 - `gala/navigation.json` — the links in your site's header and footer.
 - `gala/appearance.json` — which visual theme your site uses.
+- `gala/modules/interactions.json` — likes and comments are on by default and can be changed in Galascribe under the site's settings or by editing this file.
 - `assets/` — images and other files your publication uses that aren't
   articles or pages.
 

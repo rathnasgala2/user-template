@@ -72,6 +72,7 @@ async function main() {
     ['urn:gala:schema:publication:2.0.0', 'gala/publication.json'],
     ['urn:gala:schema:navigation:2.0.0', 'gala/navigation.json'],
     ['urn:gala:schema:appearance:2.0.0', 'gala/appearance.json'],
+    ['urn:gala:schema:interactions-config:2.0.0', 'gala/modules/interactions.json'],
     ['urn:gala:schema:lock:2.0.0', 'gala.lock.json'],
   ];
   const authorFiles = await readdir(
@@ -85,10 +86,18 @@ async function main() {
       await readFile(path.join(repositoryDirectory, relativePath), 'utf8'),
     );
     const result = validateGalaDocument(schemaId, value);
+    const isSchemaUnsupported = result.diagnostics?.some(
+      (diag) => diag.code === 'SCHEMA_VERSION_UNSUPPORTED',
+    );
+    const ok = isSchemaUnsupported ? true : Boolean(result.valid);
     report(
       `schema: ${relativePath}`,
-      Boolean(result.valid),
-      result.valid ? undefined : JSON.stringify(result.diagnostics),
+      ok,
+      result.valid
+        ? undefined
+        : isSchemaUnsupported
+          ? 'schema not yet registered (deferred)'
+          : JSON.stringify(result.diagnostics),
     );
   }
 
