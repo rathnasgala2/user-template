@@ -86,18 +86,10 @@ async function main() {
       await readFile(path.join(repositoryDirectory, relativePath), 'utf8'),
     );
     const result = validateGalaDocument(schemaId, value);
-    const isSchemaUnsupported = result.diagnostics?.some(
-      (diag) => diag.code === 'SCHEMA_VERSION_UNSUPPORTED',
-    );
-    const ok = isSchemaUnsupported ? true : Boolean(result.valid);
     report(
       `schema: ${relativePath}`,
-      ok,
-      result.valid
-        ? undefined
-        : isSchemaUnsupported
-          ? 'schema not yet registered (deferred)'
-          : JSON.stringify(result.diagnostics),
+      Boolean(result.valid),
+      result.valid ? undefined : JSON.stringify(result.diagnostics),
     );
   }
 
