@@ -27,7 +27,7 @@ real publication.
 | `gala/authors/placeholder-author.json` | `/biography` | The author's real short biography. | `PLACEHOLDER short author biography.` |
 | `content/welcome-to-your-publication.md` | frontmatter `authors[0]` | Must equal the rewritten author id above. | `00000000-0000-7000-8000-000000000002` |
 | `content/about.md` | frontmatter `authors[0]` | Must equal the rewritten author id above. | `00000000-0000-7000-8000-000000000002` |
-| `.github/workflows/gala-publish-v2.yml` | the `uses:` pin after `@` and `with.publish_toolchain_ref` | The exact `rathnasgala2/publish` commit SHA Gala tells the owner to pin in both caller fields. This is the one caller-contract value `publish/docs/callers/README.md` documents as author-replaceable; it is not Galascribe-generated data, it is a Gala-provided pin. | `111072a848f204d783420ef89acfed557bdfe797` |
+| `.github/workflows/gala-publish-v2.yml` | the `uses:` pin after `@` and `with.publish_toolchain_ref` | The exact `rathnasgala2/publish` commit SHA Gala tells the owner to pin in both caller fields. This is the one caller-contract value `publish/docs/callers/README.md` documents as author-replaceable; it is not Galascribe-generated data, it is a Gala-provided pin. | `ac7112dca2cbf3994b28439b8380fced35a4bdaa` |
 | `.github/workflows/gala-publish-v2.yml` | `with.service_origin_catalog_url` | The signed Gala service-origin catalog location, provided by Gala. | `https://api.galascribe.com/v2/service-origins` |
 | `.github/workflows/gala-publish-v2.yml` | `with.gala_api_origin` | The Gala API origin used for publish authorization and reporting. | `https://api.galascribe.com` |
 
@@ -65,8 +65,8 @@ following exactly the shape of
 `publish/packages/publish-action/test/fixtures/minimal-repository/gala.lock.json`
 (the real fixture the package's own tests exercise), with real package
 versions substituted where they are known from this workspace's checkouts:
-`@rathnasgala2/schemas@3.1.0` (the registry version `publish-action`
-actually pins and installs), `@rathnasgala2/template@3.1.0`,
+`@rathnasgala2/schemas@3.3.0` (the registry version `publish-action`
+actually pins and installs), `@rathnasgala2/template@3.2.0`,
 `@rathnasgala2/theme-default@3.0.0` (theme contract 3.0.0), `@rathnasgala2/publish-action@0.1.0`,
 `@rathnasgala2/publish-kernel@0.1.1`, `@rathnasgala2/adapter-protocol@0.2.1`
 and `@rathnasgala2/adapter-github-pages@0.1.1`. The `integrity` digests of schemas, template and theme-default are the real
