@@ -27,7 +27,7 @@ real publication.
 | `gala/authors/placeholder-author.json` | `/biography` | The author's real short biography. | `PLACEHOLDER short author biography.` |
 | `content/welcome-to-your-publication.md` | frontmatter `authors[0]` | Must equal the rewritten author id above. | `00000000-0000-7000-8000-000000000002` |
 | `content/about.md` | frontmatter `authors[0]` | Must equal the rewritten author id above. | `00000000-0000-7000-8000-000000000002` |
-| `.github/workflows/gala-publish-v2.yml` | the `uses:` pin after `@` and `with.publish_toolchain_ref` | The exact `rathnasgala2/publish` commit SHA Gala tells the owner to pin in both caller fields. This is the one caller-contract value `publish/docs/callers/README.md` documents as author-replaceable; it is not Galascribe-generated data, it is a Gala-provided pin. | `9f929c98e38e4fef17c84d8f48bb99c600410606` |
+| `.github/workflows/gala-publish-v2.yml` | the `uses:` pin after `@` and `with.publish_toolchain_ref` | The exact `rathnasgala2/publish` commit SHA Gala tells the owner to pin in both caller fields. This is the one caller-contract value `publish/docs/callers/README.md` documents as author-replaceable; it is not Galascribe-generated data, it is a Gala-provided pin. | `111072a848f204d783420ef89acfed557bdfe797` |
 | `.github/workflows/gala-publish-v2.yml` | `with.service_origin_catalog_url` | The signed Gala service-origin catalog location, provided by Gala. | `https://api.galascribe.com/v2/service-origins` |
 | `.github/workflows/gala-publish-v2.yml` | `with.gala_api_origin` | The Gala API origin used for publish authorization and reporting. | `https://api.galascribe.com` |
 
