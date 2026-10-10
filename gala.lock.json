@@ -19,8 +19,8 @@
   },
   "template": {
     "package": "@rathnasgala2/template",
-    "version": "3.2.0",
-    "integrity": "sha256:9726b1024e7696897736459e41a6713458c41d7d79df56d20d91902d5a5f353a",
+    "version": "3.2.1",
+    "integrity": "sha256:343f3a902cd5b8f4e87899a5da873f2c21a0e5b86961d8c688fe3aab0ca22d2d",
     "registry": "https://registry.npmjs.org/",
     "contractVersion": "3.0.0",
     "compatibleWith": "^3.0.0",
