@@ -13,23 +13,25 @@
  * `.user-template/` in the identity commit it makes right after generating a
  * repository from this user template.
  *
- * Sibling repositories (`schema`, `publish`) are resolved the same way
- * `publish-action` itself resolves its own siblings (`template`,
- * `theme-*`): `WORKSPACE_ROOT` when set, otherwise the fixed relative
- * default from this file's own location.
+ * The source-only toolchain repositories (`schema`, `template`,
+ * `theme-default`, `publish`, and `api`) resolve from `WORKSPACE_ROOT` when
+ * set, otherwise from the fixed workspace root relative to this file.
  *
  * @module
  */
 
-import { readFile, readdir } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
-import { createRequire } from 'node:module';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { promisify } from "node:util";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const THIS_FILE_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 // .user-template/scripts/ -> .user-template/ -> <repository root> -> v2/
-const DEFAULT_RELATIVE_WORKSPACE_ROOT = '../../../';
+const DEFAULT_RELATIVE_WORKSPACE_ROOT = "../../../";
 
 function resolveWorkspaceRoot() {
   const override = process.env.WORKSPACE_ROOT;
@@ -40,22 +42,79 @@ function resolveWorkspaceRoot() {
 }
 
 const workspaceRoot = resolveWorkspaceRoot();
-const repositoryDirectory = path.resolve(THIS_FILE_DIRECTORY, '../../');
-const schemaRoot = path.join(workspaceRoot, 'schema');
-const publishRoot = path.join(workspaceRoot, 'publish');
-const publishActionRoot = path.join(
+const repositoryDirectory = path.resolve(THIS_FILE_DIRECTORY, "../../");
+const schemaRoot = path.join(workspaceRoot, "schema");
+const templateRoot = path.join(workspaceRoot, "template");
+const defaultThemeRoot = path.join(workspaceRoot, "theme-default");
+const publishRoot = path.join(workspaceRoot, "publish");
+const publishActionRoot = path.join(publishRoot, "packages", "publish-action");
+const publishKernelRoot = path.join(publishRoot, "packages", "publish-kernel");
+const adapterProtocolRoot = path.join(
   publishRoot,
-  'packages',
-  'publish-action',
+  "packages",
+  "adapter-protocol",
 );
+const githubPagesAdapterRoot = path.join(
+  publishRoot,
+  "packages",
+  "adapter-github-pages",
+);
+const apiTemplateSnapshotRoot = path.join(
+  workspaceRoot,
+  "api",
+  "src",
+  "test",
+  "resources",
+  "imports",
+  "user-template",
+);
+const execFileAsync = promisify(execFile);
+
+// Publish-action resolves its local schema/template/theme candidates through
+// this one workspace boundary. Keep every verifier phase on the same checkout
+// instead of mixing the source schema with stale installed packages.
+process.env.WORKSPACE_ROOT = workspaceRoot;
 
 /** @type {string[]} */
 const failures = [];
 
 function report(label, ok, detail) {
-  const status = ok ? 'PASS' : 'FAIL';
-  console.log(`[${status}] ${label}${detail ? ` — ${detail}` : ''}`);
+  const status = ok ? "PASS" : "FAIL";
+  console.log(`[${status}] ${label}${detail ? ` — ${detail}` : ""}`);
   if (!ok) failures.push(label);
+}
+
+async function packIntegrity(packageRoot) {
+  const temporaryDirectory = await mkdtemp(
+    path.join(tmpdir(), "gala-user-template-pack-"),
+  );
+  try {
+    const { stdout } = await execFileAsync(
+      "npm",
+      [
+        "pack",
+        "--ignore-scripts",
+        "--silent",
+        "--pack-destination",
+        temporaryDirectory,
+      ],
+      {
+        cwd: packageRoot,
+        env: {
+          ...process.env,
+          npm_config_cache: path.join(temporaryDirectory, "npm-cache"),
+        },
+      },
+    );
+    const archiveName = stdout.trim().split(/\r?\n/u).at(-1);
+    if (!archiveName) {
+      throw new Error(`npm pack emitted no archive name for ${packageRoot}`);
+    }
+    const bytes = await readFile(path.join(temporaryDirectory, archiveName));
+    return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  } finally {
+    await rm(temporaryDirectory, { recursive: true, force: true });
+  }
 }
 
 async function main() {
@@ -63,28 +122,38 @@ async function main() {
   console.log(`repository:     ${repositoryDirectory}`);
 
   const { validateGalaDocument } = await import(
-    pathToFileURL(path.join(schemaRoot, 'src', 'index.js')).href
+    pathToFileURL(path.join(schemaRoot, "src", "index.js")).href
+  );
+  const { ACTIVE_DIGEST_PROFILES } = await import(
+    pathToFileURL(
+      path.join(schemaRoot, "src", "internal", "digest-profiles.js"),
+    ).href
   );
 
   // 1. Schema-validate every Gala document.
   const documents = [
-    ['urn:gala:schema:repository:2.0.0', 'gala/repository.json'],
-    ['urn:gala:schema:publication:2.0.0', 'gala/publication.json'],
-    ['urn:gala:schema:navigation:2.0.0', 'gala/navigation.json'],
-    ['urn:gala:schema:appearance:2.0.0', 'gala/appearance.json'],
-    ['urn:gala:schema:interactions-config:2.0.0', 'gala/modules/interactions.json'],
-    ['urn:gala:schema:lock:2.0.0', 'gala.lock.json'],
+    ["urn:gala:schema:repository:2.0.0", "gala/repository.json"],
+    ["urn:gala:schema:publication:2.0.0", "gala/publication.json"],
+    ["urn:gala:schema:navigation:2.0.0", "gala/navigation.json"],
+    ["urn:gala:schema:appearance:2.0.0", "gala/appearance.json"],
+    [
+      "urn:gala:schema:interactions-config:2.0.0",
+      "gala/modules/interactions.json",
+    ],
+    ["urn:gala:schema:lock:2.0.0", "gala.lock.json"],
   ];
   const authorFiles = await readdir(
-    path.join(repositoryDirectory, 'gala', 'authors'),
+    path.join(repositoryDirectory, "gala", "authors"),
   );
-  for (const name of authorFiles.filter((f) => f.endsWith('.json'))) {
-    documents.push(['urn:gala:schema:author:2.0.0', `gala/authors/${name}`]);
+  for (const name of authorFiles.filter((f) => f.endsWith(".json"))) {
+    documents.push(["urn:gala:schema:author:2.0.0", `gala/authors/${name}`]);
   }
+  const validatedDocuments = new Map();
   for (const [schemaId, relativePath] of documents) {
     const value = JSON.parse(
-      await readFile(path.join(repositoryDirectory, relativePath), 'utf8'),
+      await readFile(path.join(repositoryDirectory, relativePath), "utf8"),
     );
+    validatedDocuments.set(relativePath, value);
     const result = validateGalaDocument(schemaId, value);
     report(
       `schema: ${relativePath}`,
@@ -94,7 +163,88 @@ async function main() {
   }
 
   const lock = JSON.parse(
-    await readFile(path.join(repositoryDirectory, 'gala.lock.json'), 'utf8'),
+    await readFile(path.join(repositoryDirectory, "gala.lock.json"), "utf8"),
+  );
+  report(
+    "lock selects the generation-4 Default toolchain",
+    lock.repositorySchemaVersion === "3.8.0" &&
+      lock.schemas.package === "@rathnasgala2/schemas" &&
+      lock.schemas.version === "3.8.0" &&
+      lock.schemas.compatibleWith === "^3.0.0" &&
+      lock.template.package === "@rathnasgala2/template" &&
+      lock.template.version === "4.0.0" &&
+      lock.template.contractVersion === "4.0.0" &&
+      lock.template.compatibleWith === "^4.0.0" &&
+      lock.theme.package === "@rathnasgala2/theme-default" &&
+      lock.theme.version === "4.0.0" &&
+      lock.theme.contractVersion === "4.0.0" &&
+      lock.theme.compatibleWith === "^4.0.0",
+    JSON.stringify({
+      repositorySchemaVersion: lock.repositorySchemaVersion,
+      schemas: lock.schemas,
+      template: lock.template,
+      theme: lock.theme,
+    }),
+  );
+  report(
+    "lock self-excluding digest is current",
+    lock.lockDigest === ACTIVE_DIGEST_PROFILES.lock.digest(lock),
+    `${lock.lockDigest} vs ${ACTIVE_DIGEST_PROFILES.lock.digest(lock)}`,
+  );
+  const [
+    resolverIntegrity,
+    schemaIntegrity,
+    templateIntegrity,
+    themeIntegrity,
+    kernelIntegrity,
+    protocolIntegrity,
+    githubPagesIntegrity,
+  ] = await Promise.all([
+    packIntegrity(publishActionRoot),
+    packIntegrity(schemaRoot),
+    packIntegrity(templateRoot),
+    packIntegrity(defaultThemeRoot),
+    packIntegrity(publishKernelRoot),
+    packIntegrity(adapterProtocolRoot),
+    packIntegrity(githubPagesAdapterRoot),
+  ]);
+  const publisherIntegrity = new Map(
+    lock.publisher.map((entry) => [entry.package, entry.integrity]),
+  );
+  report(
+    "lock integrities bind the current source-only toolchain",
+    lock.resolver.integrity === resolverIntegrity &&
+      publisherIntegrity.get("@rathnasgala2/publish-action") ===
+        resolverIntegrity &&
+      publisherIntegrity.get("@rathnasgala2/publish-kernel") ===
+        kernelIntegrity &&
+      publisherIntegrity.get("@rathnasgala2/adapter-protocol") ===
+        protocolIntegrity &&
+      publisherIntegrity.get("@rathnasgala2/adapter-github-pages") ===
+        githubPagesIntegrity &&
+      lock.schemas.integrity === schemaIntegrity &&
+      lock.template.integrity === templateIntegrity &&
+      lock.theme.integrity === themeIntegrity,
+    JSON.stringify({
+      resolverIntegrity,
+      schemaIntegrity,
+      templateIntegrity,
+      themeIntegrity,
+      kernelIntegrity,
+      protocolIntegrity,
+      githubPagesIntegrity,
+    }),
+  );
+  const appearance = JSON.parse(
+    await readFile(
+      path.join(repositoryDirectory, "gala", "appearance.json"),
+      "utf8",
+    ),
+  );
+  report(
+    "appearance selects Default 4",
+    appearance.theme === "@rathnasgala2/theme-default@^4.0.0",
+    appearance.theme,
   );
   const selectedAdapters = lock.publisher.filter((entry) =>
     /^@rathnasgala2\/adapter-(?:local-directory|github-pages|do-spaces)$/u.test(
@@ -102,34 +252,40 @@ async function main() {
     ),
   );
   report(
-    'lock selects exactly GitHub Pages adapter 0.1.1',
+    "lock selects exactly GitHub Pages adapter 0.1.1",
     selectedAdapters.length === 1 &&
-      selectedAdapters[0].package === '@rathnasgala2/adapter-github-pages' &&
-      selectedAdapters[0].version === '0.1.1',
+      selectedAdapters[0].package === "@rathnasgala2/adapter-github-pages" &&
+      selectedAdapters[0].version === "0.1.1",
     JSON.stringify(selectedAdapters),
   );
 
   // 2. Schema-validate every content file's frontmatter.
   const require = createRequire(
-    pathToFileURL(path.join(publishActionRoot, 'package.json')).href,
+    pathToFileURL(path.join(publishActionRoot, "package.json")).href,
   );
-  const YAML = require('yaml');
+  const YAML = require("yaml");
   const contentFiles = (
-    await readdir(path.join(repositoryDirectory, 'content'))
-  ).filter((f) => f.endsWith('.md'));
+    await readdir(path.join(repositoryDirectory, "content"))
+  ).filter((f) => f.endsWith(".md"));
+  const starterFrontmatter = [];
   for (const name of contentFiles) {
     const text = await readFile(
-      path.join(repositoryDirectory, 'content', name),
-      'utf8',
+      path.join(repositoryDirectory, "content", name),
+      "utf8",
     );
     const match = text.match(/^---\n([\s\S]*?)\n---\n/);
     if (!match) {
-      report(`frontmatter: content/${name}`, false, 'no frontmatter fence found');
+      report(
+        `frontmatter: content/${name}`,
+        false,
+        "no frontmatter fence found",
+      );
       continue;
     }
     const frontmatter = YAML.parse(match[1]);
+    starterFrontmatter.push({ name, frontmatter });
     const result = validateGalaDocument(
-      'urn:gala:schema:content-frontmatter:2.0.0',
+      "urn:gala:schema:content-frontmatter:2.0.0",
       frontmatter,
     );
     report(
@@ -139,23 +295,44 @@ async function main() {
     );
     report(
       `starter state: content/${name}`,
-      frontmatter.status === 'published' &&
-        typeof frontmatter.publishedAt === 'string',
+      frontmatter.status === "published" &&
+        typeof frontmatter.publishedAt === "string",
       `status=${String(frontmatter.status)} publishedAt=${String(frontmatter.publishedAt)}`,
     );
   }
+
+  const publication = validatedDocuments.get("gala/publication.json");
+  const navigation = validatedDocuments.get("gala/navigation.json");
+  const starterAuthor = validatedDocuments.get(
+    "gala/authors/placeholder-author.json",
+  );
+  const starterArticle = starterFrontmatter.find(
+    ({ frontmatter }) => frontmatter.kind === "article",
+  )?.frontmatter;
+  report(
+    "starter content exercises Default Home, Article, and Author layouts",
+    navigation.items.some(
+      (item) => item.type === "internal" && item.route === "/",
+    ) &&
+      typeof starterArticle?.description === "string" &&
+      starterArticle.description.length > 0 &&
+      starterArticle.tags.length > 0 &&
+      typeof starterArticle.series === "string" &&
+      publication.authors.includes("gala/authors/placeholder-author.json") &&
+      starterArticle.authors.includes(starterAuthor.id),
+    JSON.stringify({
+      homeRoute: navigation.items.find((item) => item.route === "/")?.route,
+      article: starterArticle?.slug,
+      author: starterAuthor.id,
+    }),
+  );
 
   // 3. Publish normalization must admit every starter. A generated repository
   // that contains only these files must be publishable without a hidden
   // visibility edit first.
   const { buildBuildInputFromRepository } = await import(
     pathToFileURL(
-      path.join(
-        publishActionRoot,
-        'src',
-        'normalize',
-        'repository-intake.js',
-      ),
+      path.join(publishActionRoot, "src", "normalize", "repository-intake.js"),
     ).href
   );
   const publishInput = await buildBuildInputFromRepository({
@@ -166,55 +343,83 @@ async function main() {
     publishInput.content
   );
   report(
-    'publish-action includes every published starter in a production publish',
+    "publish-action includes every published starter in a production publish",
     publishContent.length === contentFiles.length &&
-      publishContent.every((item) => item.frontmatter?.status === 'published'),
+      publishContent.every((item) => item.frontmatter?.status === "published"),
     JSON.stringify(publishContent.map((item) => item.frontmatter?.status)),
   );
 
   // 4. The caller workflow must be byte-identical to publish's own contract.
   const callerPath = path.join(
     repositoryDirectory,
-    '.github',
-    'workflows',
-    'gala-publish-v2.yml',
+    ".github",
+    "workflows",
+    "gala-publish-v2.yml",
   );
   const contractPath = path.join(
     publishRoot,
-    'docs',
-    'callers',
-    'gala-publish-v2.yml',
+    "docs",
+    "callers",
+    "gala-publish-v2.yml",
   );
   const [callerBytes, contractBytes] = await Promise.all([
     readFile(callerPath),
     readFile(contractPath),
   ]);
-  const digest = (buf) => createHash('sha256').update(buf).digest('hex');
+  const digest = (buf) => createHash("sha256").update(buf).digest("hex");
   report(
-    'caller workflow byte-identical to publish/docs/callers/gala-publish-v2.yml',
+    "caller workflow byte-identical to publish/docs/callers/gala-publish-v2.yml",
     digest(callerBytes) === digest(contractBytes),
     `${digest(callerBytes)} vs ${digest(contractBytes)}`,
   );
   const callerPin = callerBytes
-    .toString('utf8')
-    .match(/rathnasgala2\/publish\/\.github\/workflows\/publish-v2\.yml@([0-9a-f]{40})/)?.[1];
+    .toString("utf8")
+    .match(
+      /rathnasgala2\/publish\/\.github\/workflows\/publish-v2\.yml@([0-9a-f]{40})/,
+    )?.[1];
   const templateGuide = await readFile(
-    path.join(repositoryDirectory, '.user-template', 'USER-TEMPLATE.md'),
-    'utf8',
+    path.join(repositoryDirectory, ".user-template", "USER-TEMPLATE.md"),
+    "utf8",
   );
   report(
-    'USER-TEMPLATE.md documents the caller workflow pin',
+    "USER-TEMPLATE.md documents the caller workflow pin",
     callerPin !== undefined && templateGuide.includes(`\`${callerPin}\``),
     callerPin,
   );
 
-  console.log('');
+  const snapshotPaths = [
+    ".github/workflows/gala-publish-v2.yml",
+    "gala.lock.json",
+    "gala/appearance.json",
+    "gala/authors/placeholder-author.json",
+    "gala/modules/interactions.json",
+    "gala/navigation.json",
+    "gala/publication.json",
+    "gala/repository.json",
+  ];
+  const snapshotMismatches = [];
+  for (const relativePath of snapshotPaths) {
+    const [templateBytes, snapshotBytes] = await Promise.all([
+      readFile(path.join(repositoryDirectory, relativePath)),
+      readFile(path.join(apiTemplateSnapshotRoot, relativePath)),
+    ]);
+    if (!templateBytes.equals(snapshotBytes)) {
+      snapshotMismatches.push(relativePath);
+    }
+  }
+  report(
+    "API current-template import fixture is byte-identical",
+    snapshotMismatches.length === 0,
+    snapshotMismatches.join(", "),
+  );
+
+  console.log("");
   if (failures.length > 0) {
     console.error(`${failures.length} check(s) failed:`);
     for (const failure of failures) console.error(`  - ${failure}`);
     process.exitCode = 1;
   } else {
-    console.log('All checks passed.');
+    console.log("All checks passed.");
   }
 }
 

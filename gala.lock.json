@@ -1,44 +1,44 @@
 {
   "schemaId": "urn:gala:schema:lock:2.0.0",
   "schemaVersion": "2.0.0",
-  "repositorySchemaVersion": "2.0.0",
-  "resolvedAt": "2026-09-27T00:00:00.000Z",
+  "repositorySchemaVersion": "3.8.0",
+  "resolvedAt": "2026-10-11T00:00:00.000Z",
   "resolver": {
     "package": "@rathnasgala2/publish-action",
     "version": "0.1.0",
-    "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+    "integrity": "sha256:400b256f8df9b996a0661998a36dece10bcf5ebae5f4a3f30e49658ff884014e",
     "registry": "https://local-development.invalid/rathnasgala2/"
   },
   "schemas": {
     "package": "@rathnasgala2/schemas",
-    "version": "3.3.0",
-    "integrity": "sha256:bc2300b51e9e7b50ee6b535b489b9cecaa0811ac88126f50190114da71c13e9d",
-    "registry": "https://registry.npmjs.org/",
+    "version": "3.8.0",
+    "integrity": "sha256:c00e94ae04e7d8eab02c5a344dd569e81a35f8674dc92b0e5911907afda592e3",
+    "registry": "https://local-development.invalid/rathnasgala2/",
     "contractVersion": "3.0.0",
     "compatibleWith": "^3.0.0"
   },
   "template": {
     "package": "@rathnasgala2/template",
-    "version": "3.2.1",
-    "integrity": "sha256:343f3a902cd5b8f4e87899a5da873f2c21a0e5b86961d8c688fe3aab0ca22d2d",
-    "registry": "https://registry.npmjs.org/",
-    "contractVersion": "3.0.0",
-    "compatibleWith": "^3.0.0",
+    "version": "4.0.0",
+    "integrity": "sha256:25a3c761a56316cf2143aa53d7be46be892ff505a636d91f9b3aa6eaced8b7fa",
+    "registry": "https://local-development.invalid/rathnasgala2/",
+    "contractVersion": "4.0.0",
+    "compatibleWith": "^4.0.0",
     "templateModules": []
   },
   "theme": {
     "package": "@rathnasgala2/theme-default",
-    "version": "3.0.1",
-    "integrity": "sha256:2d197e270e6e63636e2cac0c6823c215b63933930248533118868eae3ce17869",
-    "registry": "https://registry.npmjs.org/",
-    "contractVersion": "3.0.0",
-    "compatibleWith": "^3.0.0"
+    "version": "4.0.0",
+    "integrity": "sha256:1d648d8b6cfefd22afdf47a46a0bb1260a7afa1d13990d95329e0230fab176a5",
+    "registry": "https://local-development.invalid/rathnasgala2/",
+    "contractVersion": "4.0.0",
+    "compatibleWith": "^4.0.0"
   },
   "publisher": [
     {
       "package": "@rathnasgala2/publish-action",
       "version": "0.1.0",
-      "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "integrity": "sha256:400b256f8df9b996a0661998a36dece10bcf5ebae5f4a3f30e49658ff884014e",
       "registry": "https://local-development.invalid/rathnasgala2/",
       "contractVersion": "2.0.0",
       "compatibleWith": "^2.0.0"
@@ -46,7 +46,7 @@
     {
       "package": "@rathnasgala2/publish-kernel",
       "version": "0.1.1",
-      "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000005",
+      "integrity": "sha256:8725560089293d0e58069eda3636e4ddc5ad1e4a66aba27b76325cc470bcff1a",
       "registry": "https://local-development.invalid/rathnasgala2/",
       "contractVersion": "2.0.0",
       "compatibleWith": "^2.0.0"
@@ -54,7 +54,7 @@
     {
       "package": "@rathnasgala2/adapter-protocol",
       "version": "0.2.1",
-      "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000006",
+      "integrity": "sha256:adb7e590d3db457c5fa559f2a91e4f52c69d35e2068e6ec0fbbe05b14e669995",
       "registry": "https://local-development.invalid/rathnasgala2/",
       "contractVersion": "2.0.0",
       "compatibleWith": "^2.0.0"
@@ -62,7 +62,7 @@
     {
       "package": "@rathnasgala2/adapter-github-pages",
       "version": "0.1.1",
-      "integrity": "sha256:0000000000000000000000000000000000000000000000000000000000000007",
+      "integrity": "sha256:9e20f227d81862b0f41f4eb6409844528854b60029043c75b956815d6a827e24",
       "registry": "https://local-development.invalid/rathnasgala2/",
       "contractVersion": "2.0.0",
       "compatibleWith": "^2.0.0"
@@ -70,5 +70,5 @@
   ],
   "dependencies": [],
   "dependencyDag": [],
-  "lockDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000008"
+  "lockDigest": "sha256:b06a1b0aa95c8b766fbaa4b2a53e8d784a4c0c98f9584ecb5b912a3c81806c8f"
 }

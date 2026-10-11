@@ -13,7 +13,7 @@ file starts with a short block of settings (its "frontmatter") between two
 ```markdown
 ---
 schemaId: urn:gala:schema:content-frontmatter:2.0.0
-schemaVersion: '2.0.0'
+schemaVersion: "2.0.0"
 id: <a stable id — do not change once published>
 kind: article
 title: My new article
@@ -22,7 +22,7 @@ authors:
   - <your author id, from gala/authors/>
 tags: []
 status: published
-createdAt: '2026-01-01T00:00:00.000Z'
+createdAt: "2026-01-01T00:00:00.000Z"
 slug: my-new-article
 redirects: []
 extensions: {}
@@ -53,7 +53,8 @@ in the files themselves.
 - `gala/authors/` — one file per author. Start by editing the file that's
   already there with your own name and short biography.
 - `gala/navigation.json` — the links in your site's header and footer.
-- `gala/appearance.json` — which visual theme your site uses.
+- `gala/appearance.json` — which visual theme your site uses. New publications
+  start with the newsletter-oriented Default theme.
 - `gala/modules/interactions.json` — likes and comments are on by default and can be changed in Galascribe under the site's settings or by editing this file.
 - `assets/` — images and other files your publication uses that aren't
   articles or pages.

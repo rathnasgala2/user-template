@@ -5,6 +5,12 @@
     {
       "type": "internal",
       "label": "Home",
+      "route": "/",
+      "children": []
+    },
+    {
+      "type": "internal",
+      "label": "Journal",
       "route": "/welcome-to-your-publication",
       "children": []
     },
