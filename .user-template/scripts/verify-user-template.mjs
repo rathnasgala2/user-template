@@ -20,13 +20,10 @@
  * @module
  */
 
-import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { tmpdir } from "node:os";
 import path from "node:path";
-import { promisify } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const THIS_FILE_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
@@ -68,7 +65,6 @@ const apiTemplateSnapshotRoot = path.join(
   "imports",
   "user-template",
 );
-const execFileAsync = promisify(execFile);
 
 // Publish-action resolves its local schema/template/theme candidates through
 // this one workspace boundary. Keep every verifier phase on the same checkout
@@ -82,39 +78,6 @@ function report(label, ok, detail) {
   const status = ok ? "PASS" : "FAIL";
   console.log(`[${status}] ${label}${detail ? ` — ${detail}` : ""}`);
   if (!ok) failures.push(label);
-}
-
-async function packIntegrity(packageRoot) {
-  const temporaryDirectory = await mkdtemp(
-    path.join(tmpdir(), "gala-user-template-pack-"),
-  );
-  try {
-    const { stdout } = await execFileAsync(
-      "npm",
-      [
-        "pack",
-        "--ignore-scripts",
-        "--silent",
-        "--pack-destination",
-        temporaryDirectory,
-      ],
-      {
-        cwd: packageRoot,
-        env: {
-          ...process.env,
-          npm_config_cache: path.join(temporaryDirectory, "npm-cache"),
-        },
-      },
-    );
-    const archiveName = stdout.trim().split(/\r?\n/u).at(-1);
-    if (!archiveName) {
-      throw new Error(`npm pack emitted no archive name for ${packageRoot}`);
-    }
-    const bytes = await readFile(path.join(temporaryDirectory, archiveName));
-    return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
-  } finally {
-    await rm(temporaryDirectory, { recursive: true, force: true });
-  }
 }
 
 async function main() {
@@ -191,49 +154,38 @@ async function main() {
     lock.lockDigest === ACTIVE_DIGEST_PROFILES.lock.digest(lock),
     `${lock.lockDigest} vs ${ACTIVE_DIGEST_PROFILES.lock.digest(lock)}`,
   );
-  const [
-    resolverIntegrity,
-    schemaIntegrity,
-    templateIntegrity,
-    themeIntegrity,
-    kernelIntegrity,
-    protocolIntegrity,
-    githubPagesIntegrity,
-  ] = await Promise.all([
-    packIntegrity(publishActionRoot),
-    packIntegrity(schemaRoot),
-    packIntegrity(templateRoot),
-    packIntegrity(defaultThemeRoot),
-    packIntegrity(publishKernelRoot),
-    packIntegrity(adapterProtocolRoot),
-    packIntegrity(githubPagesAdapterRoot),
+  const TOOLCHAIN_OWN = new Set([
+    "@rathnasgala2/publish-action",
+    "@rathnasgala2/publish-kernel",
+    "@rathnasgala2/adapter-protocol",
   ]);
-  const publisherIntegrity = new Map(
-    lock.publisher.map((entry) => [entry.package, entry.integrity]),
-  );
+  const NPM_REGISTRY = "https://registry.npmjs.org/";
+  const lockRows = [
+    lock.resolver,
+    lock.schemas,
+    lock.template,
+    lock.theme,
+    ...lock.publisher,
+    ...lock.dependencies,
+  ];
+  const badRows = lockRows.filter((row) => {
+    const shaOk =
+      typeof row.integrity === "string" &&
+      /^sha256:[0-9a-f]{64}$/u.test(row.integrity);
+    const versionOk = typeof row.version === "string" && row.version !== "";
+    if (row.registry === NPM_REGISTRY) return !(shaOk && versionOk);
+    return !(TOOLCHAIN_OWN.has(row.package) && shaOk && versionOk);
+  });
   report(
-    "lock integrities bind the current source-only toolchain",
-    lock.resolver.integrity === resolverIntegrity &&
-      publisherIntegrity.get("@rathnasgala2/publish-action") ===
-        resolverIntegrity &&
-      publisherIntegrity.get("@rathnasgala2/publish-kernel") ===
-        kernelIntegrity &&
-      publisherIntegrity.get("@rathnasgala2/adapter-protocol") ===
-        protocolIntegrity &&
-      publisherIntegrity.get("@rathnasgala2/adapter-github-pages") ===
-        githubPagesIntegrity &&
-      lock.schemas.integrity === schemaIntegrity &&
-      lock.template.integrity === templateIntegrity &&
-      lock.theme.integrity === themeIntegrity,
-    JSON.stringify({
-      resolverIntegrity,
-      schemaIntegrity,
-      templateIntegrity,
-      themeIntegrity,
-      kernelIntegrity,
-      protocolIntegrity,
-      githubPagesIntegrity,
-    }),
+    "lock rows follow the registry model",
+    badRows.length === 0 &&
+      [lock.schemas, lock.template, lock.theme].every(
+        (row) => row.registry === NPM_REGISTRY,
+      ) &&
+      lock.publisher
+        .filter((row) => !TOOLCHAIN_OWN.has(row.package))
+        .every((row) => row.registry === NPM_REGISTRY),
+    JSON.stringify(badRows.map((row) => row.package)),
   );
   const appearance = JSON.parse(
     await readFile(
@@ -381,10 +333,15 @@ async function main() {
     path.join(repositoryDirectory, ".user-template", "USER-TEMPLATE.md"),
     "utf8",
   );
+  const callerRef = callerBytes
+    .toString("utf8")
+    .match(/publish_toolchain_ref:\s*([0-9a-f]{40})/u)?.[1];
   report(
     "USER-TEMPLATE.md documents the caller workflow pin",
-    callerPin !== undefined && templateGuide.includes(`\`${callerPin}\``),
-    callerPin,
+    callerPin !== undefined &&
+      callerPin === callerRef &&
+      templateGuide.includes(`\`${callerPin}\``),
+    `uses=${callerPin} ref=${callerRef}`,
   );
 
   const snapshotPaths = [
