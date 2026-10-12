@@ -12,16 +12,16 @@
   "schemas": {
     "package": "@rathnasgala2/schemas",
     "version": "3.8.0",
-    "integrity": "sha256:c00e94ae04e7d8eab02c5a344dd569e81a35f8674dc92b0e5911907afda592e3",
-    "registry": "https://local-development.invalid/rathnasgala2/",
+    "integrity": "sha256:f34339d6ddfd8043d902cb54dbdedb37633bcf01e1c28e8c7280e0c86c9e5752",
+    "registry": "https://registry.npmjs.org/",
     "contractVersion": "3.0.0",
     "compatibleWith": "^3.0.0"
   },
   "template": {
     "package": "@rathnasgala2/template",
     "version": "4.0.0",
-    "integrity": "sha256:25a3c761a56316cf2143aa53d7be46be892ff505a636d91f9b3aa6eaced8b7fa",
-    "registry": "https://local-development.invalid/rathnasgala2/",
+    "integrity": "sha256:65e78fe2d28ac731efc262e8307f1531f4373ba20a74cc40823cea001b85b0c8",
+    "registry": "https://registry.npmjs.org/",
     "contractVersion": "4.0.0",
     "compatibleWith": "^4.0.0",
     "templateModules": []
@@ -29,8 +29,8 @@
   "theme": {
     "package": "@rathnasgala2/theme-default",
     "version": "4.0.0",
-    "integrity": "sha256:1d648d8b6cfefd22afdf47a46a0bb1260a7afa1d13990d95329e0230fab176a5",
-    "registry": "https://local-development.invalid/rathnasgala2/",
+    "integrity": "sha256:38287d10c8a1a3bd68febe6109d2bcb59daf2f9fee72c65caa8c2d4502d999a0",
+    "registry": "https://registry.npmjs.org/",
     "contractVersion": "4.0.0",
     "compatibleWith": "^4.0.0"
   },
@@ -62,7 +62,7 @@
     {
       "package": "@rathnasgala2/adapter-github-pages",
       "version": "0.1.1",
-      "integrity": "sha256:9e20f227d81862b0f41f4eb6409844528854b60029043c75b956815d6a827e24",
+      "integrity": "sha256:912faa0d12d4c9bfe8791b5650c8280b8f4b26a99b89fde73aca3512ff27f99c",
       "registry": "https://local-development.invalid/rathnasgala2/",
       "contractVersion": "2.0.0",
       "compatibleWith": "^2.0.0"
@@ -70,5 +70,5 @@
   ],
   "dependencies": [],
   "dependencyDag": [],
-  "lockDigest": "sha256:b06a1b0aa95c8b766fbaa4b2a53e8d784a4c0c98f9584ecb5b912a3c81806c8f"
+  "lockDigest": "sha256:d4627786840b2f56739f41070f006db0c8dfea14570dbf81495efec4902a9ea9"
 }
