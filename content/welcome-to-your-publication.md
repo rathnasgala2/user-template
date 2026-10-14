@@ -21,8 +21,6 @@ redirects: []
 extensions: {}
 ---
 
-# Welcome to your publication
-
 Every publication starts with a point of view. This one starts with a simple
 promise: the words, structure, and history remain yours.
 
