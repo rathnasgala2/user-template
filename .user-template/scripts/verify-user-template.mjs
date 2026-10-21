@@ -218,15 +218,15 @@ async function main() {
     "lock selects the generation-4 Default toolchain",
     lock.repositorySchemaVersion === "3.8.0" &&
       lock.schemas.package === "@rathnasgala2/schemas" &&
-      lock.schemas.version === "3.12.0" &&
+      lock.schemas.version === "3.16.0" &&
       lock.schemas.compatibleWith === "^3.0.0" &&
       lock.template.package === "@rathnasgala2/template" &&
-      lock.template.version === "4.3.0" &&
-      lock.template.contractVersion === "4.0.0" &&
+      lock.template.version === "4.4.0" &&
+      lock.template.contractVersion === "4.1.0" &&
       lock.template.compatibleWith === "^4.0.0" &&
       lock.theme.package === "@rathnasgala2/theme-default" &&
-      lock.theme.version === "4.1.0" &&
-      lock.theme.contractVersion === "4.0.0" &&
+      lock.theme.version === "4.2.0" &&
+      lock.theme.contractVersion === "4.1.0" &&
       lock.theme.compatibleWith === "^4.0.0",
     JSON.stringify({
       repositorySchemaVersion: lock.repositorySchemaVersion,

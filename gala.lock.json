@@ -2,7 +2,7 @@
   "schemaId": "urn:gala:schema:lock:2.0.0",
   "schemaVersion": "2.0.0",
   "repositorySchemaVersion": "3.8.0",
-  "resolvedAt": "2026-10-11T00:00:00.000Z",
+  "resolvedAt": "2026-10-21T00:00:00.000Z",
   "resolver": {
     "package": "@rathnasgala2/publish-action",
     "version": "0.1.0",
@@ -11,27 +11,27 @@
   },
   "schemas": {
     "package": "@rathnasgala2/schemas",
-    "version": "3.12.0",
-    "integrity": "sha256:56cb658ebe0f841437dc072e0bbd77ff78912acb1fbaccad3f040871c16e66ac",
+    "version": "3.16.0",
+    "integrity": "sha256:4e4e36254a07270086d46ec6e754ba02a88e438c9501ddfe3b0f4fe9f3196a7b",
     "registry": "https://registry.npmjs.org/",
     "contractVersion": "3.0.0",
     "compatibleWith": "^3.0.0"
   },
   "template": {
     "package": "@rathnasgala2/template",
-    "version": "4.3.0",
-    "integrity": "sha256:fdbb817d0b6dcea21ad9bec76fa241a7b3e34a70c9fb4f41c686e619a902310f",
+    "version": "4.4.0",
+    "integrity": "sha256:85a13299731d81ba7c0377d29b6723cf683cc0aec057206acbf2ddcaed5d55f0",
     "registry": "https://registry.npmjs.org/",
-    "contractVersion": "4.0.0",
+    "contractVersion": "4.1.0",
     "compatibleWith": "^4.0.0",
     "templateModules": []
   },
   "theme": {
     "package": "@rathnasgala2/theme-default",
-    "version": "4.1.0",
-    "integrity": "sha256:f503eb5d69d515673d2bef43b6cd9cf768f2cee76747055be9c4931a8100ffdb",
+    "version": "4.2.0",
+    "integrity": "sha256:d4eb5dd5b0ca12391d82cfce8da2ec351bf1b9438bd99fb7a534a0249ab09885",
     "registry": "https://registry.npmjs.org/",
-    "contractVersion": "4.0.0",
+    "contractVersion": "4.1.0",
     "compatibleWith": "^4.0.0"
   },
   "publisher": [
@@ -70,5 +70,5 @@
   ],
   "dependencies": [],
   "dependencyDag": [],
-  "lockDigest": "sha256:4cadf582b3591736e10e964d5c6cfb5cfea5a6d67352a86b246802c151a163e8"
+  "lockDigest": "sha256:9b74025a2913faf396d66ee7848852f7aa0154666a4ff1b820b3a6f41a57c443"
 }
