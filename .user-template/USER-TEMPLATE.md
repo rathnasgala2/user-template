@@ -70,6 +70,9 @@ closed objects):
 }
 ```
 
+`G-ABC123XYZ` is a placeholder: replace it with the site's own GA4 measurement
+id.
+
 The built site shows a consent banner and loads Google Analytics 4 only after
 the reader accepts. The template generates the `/terms` and `/privacy` pages
 and the legal footer; authors must not create content with those slugs.

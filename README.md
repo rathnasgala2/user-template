@@ -71,6 +71,9 @@ in the files themselves.
   }
   ```
 
+  `G-ABC123XYZ` is a placeholder: replace it with your own site's GA4
+  measurement id.
+
   The template generates the `/terms` and `/privacy` pages and the legal footer
   itself, so do not author content with the slugs `terms` or `privacy`.
 
