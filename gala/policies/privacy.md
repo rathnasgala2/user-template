@@ -8,7 +8,7 @@ The site is delivered by a hosting provider. Like almost every web host, it keep
 
 ## Browser storage
 
-The site stores a few small settings in your browser: your colour mode (light, dark or system) and any posts you have saved to read later. This information stays on your device. The site has no reader accounts and does not track you across other websites.
+The site stores a few small settings in your browser: your colour mode (light, dark or system) and any posts you have saved to read later. This information stays on your device. The site itself keeps no reader accounts and does not track you across other websites.
 
 ## Your rights
 
