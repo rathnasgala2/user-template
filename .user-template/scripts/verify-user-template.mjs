@@ -80,6 +80,38 @@ function report(label, ok, detail) {
   if (!ok) failures.push(label);
 }
 
+/** The two pages every site has; `policies` in publication.json names both. */
+const POLICY_PAGES = ["terms", "privacy"];
+
+/**
+ * The seed rule: a policy seed file is the defaults export's `markdown` member
+ * byte for byte, with a single trailing newline appended when the member does
+ * not already end in one.
+ */
+function expectedPolicySeed(markdown) {
+  return markdown.endsWith("\n") ? markdown : `${markdown}\n`;
+}
+
+/**
+ * Reads `@rathnasgala2/schemas/site-policy-defaults` from the same schemas
+ * checkout the rest of this script uses, through that package's own `exports`
+ * map.
+ */
+async function readSitePolicyDefaults() {
+  const packageJson = JSON.parse(
+    await readFile(path.join(schemaRoot, "package.json"), "utf8"),
+  );
+  const entry = packageJson.exports?.["./site-policy-defaults"];
+  const target =
+    typeof entry === "string" ? entry : (entry?.default ?? entry?.import);
+  if (typeof target !== "string") {
+    throw new Error(
+      `${packageJson.name}@${packageJson.version} has no ./site-policy-defaults export`,
+    );
+  }
+  return JSON.parse(await readFile(path.resolve(schemaRoot, target), "utf8"));
+}
+
 async function main() {
   console.log(`workspace root: ${workspaceRoot}`);
   console.log(`repository:     ${repositoryDirectory}`);
@@ -124,6 +156,60 @@ async function main() {
       result.valid ? undefined : JSON.stringify(result.diagnostics),
     );
   }
+
+  // The editable Terms and Privacy seeds must equal the schemas package's
+  // shipped defaults (App "Reset to default" and the template fallback read the
+  // same export), and publication.json must point at exactly those files.
+  const policyProblems = [];
+  const policySummary = [];
+  try {
+    const defaults = await readSitePolicyDefaults();
+    const policies = validatedDocuments.get("gala/publication.json").policies;
+    for (const page of POLICY_PAGES) {
+      const shipped = defaults?.[page];
+      const named = policies?.[page];
+      if (
+        typeof shipped?.title !== "string" ||
+        typeof shipped?.markdown !== "string"
+      ) {
+        policyProblems.push(`${page}: no title and markdown in the defaults`);
+        continue;
+      }
+      if (named?.title !== shipped.title) {
+        policyProblems.push(
+          `${page}: publication.json title ${JSON.stringify(named?.title)} is not ${JSON.stringify(shipped.title)}`,
+        );
+      }
+      const expectedBody = `gala/policies/${page}.md`;
+      if (named?.body !== expectedBody) {
+        policyProblems.push(
+          `${page}: publication.json body ${JSON.stringify(named?.body)} is not ${JSON.stringify(expectedBody)}`,
+        );
+        continue;
+      }
+      const seed = await readFile(path.join(repositoryDirectory, expectedBody));
+      const expected = Buffer.from(
+        expectedPolicySeed(shipped.markdown),
+        "utf8",
+      );
+      if (!seed.equals(expected)) {
+        policyProblems.push(
+          `${expectedBody}: ${seed.length} bytes, defaults expect ${expected.length}`,
+        );
+      } else {
+        policySummary.push(`${page} ${seed.length} bytes`);
+      }
+    }
+  } catch (error) {
+    policyProblems.push(error instanceof Error ? error.message : String(error));
+  }
+  report(
+    "policy seeds equal the schemas defaults",
+    policyProblems.length === 0,
+    policyProblems.length === 0
+      ? policySummary.join(", ")
+      : policyProblems.join("; "),
+  );
 
   const lock = JSON.parse(
     await readFile(path.join(repositoryDirectory, "gala.lock.json"), "utf8"),
@@ -351,16 +437,24 @@ async function main() {
     "gala/authors/placeholder-author.json",
     "gala/modules/interactions.json",
     "gala/navigation.json",
+    "gala/policies/privacy.md",
+    "gala/policies/terms.md",
     "gala/publication.json",
     "gala/repository.json",
   ];
   const snapshotMismatches = [];
   for (const relativePath of snapshotPaths) {
-    const [templateBytes, snapshotBytes] = await Promise.all([
-      readFile(path.join(repositoryDirectory, relativePath)),
-      readFile(path.join(apiTemplateSnapshotRoot, relativePath)),
-    ]);
-    if (!templateBytes.equals(snapshotBytes)) {
+    const templateBytes = await readFile(
+      path.join(repositoryDirectory, relativePath),
+    );
+    const snapshotBytes = await readFile(
+      path.join(apiTemplateSnapshotRoot, relativePath),
+    ).catch((error) =>
+      error?.code === "ENOENT" ? null : Promise.reject(error),
+    );
+    if (snapshotBytes === null) {
+      snapshotMismatches.push(`${relativePath} (missing in the fixture)`);
+    } else if (!templateBytes.equals(snapshotBytes)) {
       snapshotMismatches.push(relativePath);
     }
   }

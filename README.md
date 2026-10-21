@@ -74,8 +74,15 @@ in the files themselves.
   `G-ABC123XYZ` is a placeholder: replace it with your own site's GA4
   measurement id.
 
-  The template generates the `/terms` and `/privacy` pages and the legal footer
-  itself, so do not author content with the slugs `terms` or `privacy`.
+- `gala/policies/terms.md` and `gala/policies/privacy.md` — the text of your
+  site's Terms and Privacy pages, in plain Markdown, starting from sensible
+  defaults. Edit them here, or in Galascribe under Settings → Legal pages.
+  Your site shows them at `/terms` and `/privacy`, and the template adds a
+  Galascribe section after your text (Galascribe's own terms and privacy
+  policy, and how reactions, comments and analytics work when you turn them
+  on). You can't edit that section. Because those two addresses belong to
+  these pages, do not give an article or page the slug `terms` or `privacy`.
+  `gala/publication.json` names the two files under `policies`.
 
 - `assets/` — images and other files your publication uses that aren't
   articles or pages.

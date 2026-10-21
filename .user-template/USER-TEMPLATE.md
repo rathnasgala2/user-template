@@ -74,8 +74,36 @@ closed objects):
 id.
 
 The built site shows a consent banner and loads Google Analytics 4 only after
-the reader accepts. The template generates the `/terms` and `/privacy` pages
-and the legal footer; authors must not create content with those slugs.
+the reader accepts.
+
+## `gala/policies/`: editable Terms and Privacy text
+
+`gala/publication.json` carries a `policies` member (schemas 3.16.0) naming a
+title and a repository-relative Markdown body for each page:
+
+```json
+"policies": {
+  "terms": { "title": "Terms", "body": "gala/policies/terms.md" },
+  "privacy": { "title": "Privacy", "body": "gala/policies/privacy.md" }
+}
+```
+
+`gala/policies/terms.md` and `gala/policies/privacy.md` are the site's editable
+Terms and Privacy text (also editable in the App under Settings → Legal pages),
+and they are not placeholders: Galascribe's generation step leaves them as
+shipped. They are seeded from `@rathnasgala2/schemas/site-policy-defaults`
+(`site-policy-defaults.json` at the schemas package root), the same defaults
+the App's "Reset to default" and the template's fallback use.
+
+Seed rule: each file is the export's `markdown` member for that page, byte for
+byte, plus a single trailing newline when the member does not already end in
+one; each title in `publication.json` equals the export's `title`. Refresh the
+files whenever the schemas version in `gala.lock.json` moves. The verifier's
+"policy seeds equal the schemas defaults" check enforces this.
+
+The template generates `/terms` and `/privacy` from these two files, appends
+its own non-editable Galascribe section to both, and generates the legal
+footer. Authors must not create content with the slugs `terms` or `privacy`.
 
 ## `gala.lock.json`: local generation-4 release candidate
 
@@ -109,5 +137,7 @@ node .user-template/scripts/verify-user-template.mjs
 Resolves the `schema`, `template`, `theme-default`, `publish`, and `api`
 checkouts from `WORKSPACE_ROOT` when set, otherwise from the fixed relative
 workspace root (`v2/` for this checkout). Verification repacks every locked
-source package, compares every SHA-256, validates the lock's self-digest, and
-requires the API's current-template fixture to remain byte-identical.
+source package, compares every SHA-256, validates the lock's self-digest,
+requires both policy seed files and titles to equal the `schema` checkout's
+`site-policy-defaults` export, and requires the API's current-template fixture
+to remain byte-identical.
