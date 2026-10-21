@@ -55,6 +55,25 @@ distinguishes an article from a page; the directory does not. When
 its `repository.json`) should move to `content/articles/`/`content/pages/`
 and this note should be deleted.
 
+## Optional `gala/modules/analytics.json`
+
+The template repository ships no `analytics.json`; an author adds
+`gala/modules/analytics.json` to enable analytics. Contract (schemas 3.16.0,
+closed objects):
+
+```json
+{
+  "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+  "schemaVersion": "2.0.0",
+  "provider": { "kind": "google-analytics-4", "measurementId": "G-ABC123XYZ" },
+  "consent": { "policy": "opt-in" }
+}
+```
+
+The built site shows a consent banner and loads Google Analytics 4 only after
+the reader accepts. The template generates the `/terms` and `/privacy` pages
+and the legal footer; authors must not create content with those slugs.
+
 ## `gala.lock.json`: local generation-4 release candidate
 
 There is no `resolve` command in `publish-action`; its CLI exposes `validate`,

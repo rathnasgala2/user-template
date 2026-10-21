@@ -56,6 +56,21 @@ in the files themselves.
 - `gala/appearance.json` — which visual theme your site uses. New publications
   start with the newsletter-oriented Default theme.
 - `gala/modules/interactions.json` — likes and comments are on by default and can be changed in Galascribe under the site's settings or by editing this file.
+- `gala/modules/analytics.json` — optional; add it to turn on Google Analytics
+  4. The site shows a consent banner and loads Google Analytics only after the
+  reader accepts. Example:
+
+  ```json
+  {
+    "schemaId": "urn:gala:schema:analytics-config:2.0.0",
+    "schemaVersion": "2.0.0",
+    "provider": { "kind": "google-analytics-4", "measurementId": "G-ABC123XYZ" },
+    "consent": { "policy": "opt-in" }
+  }
+  ```
+
+  The template generates the `/terms` and `/privacy` pages and the legal footer
+  itself, so do not author content with the slugs `terms` or `privacy`.
 - `assets/` — images and other files your publication uses that aren't
   articles or pages.
 
