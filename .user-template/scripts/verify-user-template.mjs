@@ -221,7 +221,7 @@ async function main() {
       lock.schemas.version === "3.16.0" &&
       lock.schemas.compatibleWith === "^3.0.0" &&
       lock.template.package === "@rathnasgala2/template" &&
-      lock.template.version === "4.4.0" &&
+      lock.template.version === "4.4.1" &&
       lock.template.contractVersion === "4.1.0" &&
       lock.template.compatibleWith === "^4.0.0" &&
       lock.theme.package === "@rathnasgala2/theme-default" &&
