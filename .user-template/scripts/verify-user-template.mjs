@@ -21,7 +21,7 @@
  */
 
 import { createHash } from "node:crypto";
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -458,11 +458,22 @@ async function main() {
       snapshotMismatches.push(relativePath);
     }
   }
-  report(
-    "API current-template import fixture is byte-identical",
-    snapshotMismatches.length === 0,
-    snapshotMismatches.join(", "),
+  const apiSiblingPresent = await stat(path.join(workspaceRoot, "api")).then(
+    (entry) => entry.isDirectory(),
+    () => false,
   );
+  if (apiSiblingPresent) {
+    report(
+      "API current-template import fixture is byte-identical",
+      snapshotMismatches.length === 0,
+      snapshotMismatches.join(", "),
+    );
+  } else {
+    // The api repository is private; public CI has no checkout of it.
+    console.log(
+      "[SKIP] API current-template import fixture is byte-identical — api sibling not present",
+    );
+  }
 
   console.log("");
   if (failures.length > 0) {
