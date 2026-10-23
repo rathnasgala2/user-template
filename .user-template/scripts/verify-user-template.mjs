@@ -290,10 +290,10 @@ async function main() {
     ),
   );
   report(
-    "lock selects exactly GitHub Pages adapter 0.1.1",
+    "lock selects exactly GitHub Pages adapter 0.1.2",
     selectedAdapters.length === 1 &&
       selectedAdapters[0].package === "@rathnasgala2/adapter-github-pages" &&
-      selectedAdapters[0].version === "0.1.1",
+      selectedAdapters[0].version === "0.1.2",
     JSON.stringify(selectedAdapters),
   );
 
