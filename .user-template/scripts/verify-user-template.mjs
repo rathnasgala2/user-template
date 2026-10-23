@@ -394,12 +394,11 @@ async function main() {
     "workflows",
     "gala-publish-v2.yml",
   );
-  const contractPath = path.join(
-    publishRoot,
-    "docs",
-    "callers",
-    "gala-publish-v2.yml",
-  );
+  // GALA_DOCS_CALLER_PATH lets CI compare against publish main's copy: the
+  // pinned toolchain commit predates the docs update that names it.
+  const contractPath =
+    process.env.GALA_DOCS_CALLER_PATH ||
+    path.join(publishRoot, "docs", "callers", "gala-publish-v2.yml");
   const [callerBytes, contractBytes] = await Promise.all([
     readFile(callerPath),
     readFile(contractPath),

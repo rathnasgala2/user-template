@@ -45,6 +45,20 @@ jobs:
           ref: ${{ steps.pin.outputs.ref }}
           persist-credentials: false
           path: publish
+          fetch-depth: 0
+      - name: Fetch the docs caller from publish main
+        working-directory: publish
+        env:
+          PINNED: ${{ steps.pin.outputs.ref }}
+        run: |
+          set -euo pipefail
+          git fetch --quiet origin main
+          if ! git merge-base --is-ancestor "$PINNED" FETCH_HEAD; then
+            echo "pinned toolchain $PINNED is not an ancestor of publish main" >&2
+            exit 1
+          fi
+          git show FETCH_HEAD:docs/callers/gala-publish-v2.yml > "$RUNNER_TEMP/docs-caller.yml"
+          echo "GALA_DOCS_CALLER_PATH=$RUNNER_TEMP/docs-caller.yml" >> "$GITHUB_ENV"
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: publish/.node-version
