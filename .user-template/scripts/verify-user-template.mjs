@@ -218,7 +218,7 @@ async function main() {
     "lock selects the generation-4 Default toolchain",
     lock.repositorySchemaVersion === "3.8.0" &&
       lock.schemas.package === "@rathnasgala2/schemas" &&
-      lock.schemas.version === "3.16.0" &&
+      lock.schemas.version === "3.19.0" &&
       lock.schemas.compatibleWith === "^3.0.0" &&
       lock.template.package === "@rathnasgala2/template" &&
       lock.template.version === "4.4.1" &&
