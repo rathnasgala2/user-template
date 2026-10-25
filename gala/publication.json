@@ -10,8 +10,8 @@
   "authors": ["gala/authors/placeholder-author.json"],
   "socialLinks": [],
   "policies": {
-    "terms": { "title": "Terms", "body": "gala/policies/terms.md" },
-    "privacy": { "title": "Privacy", "body": "gala/policies/privacy.md" }
+    "terms": { "title": "Terms", "body": "gala/theme-pages/terms.md" },
+    "privacy": { "title": "Privacy", "body": "gala/theme-pages/privacy.md" }
   },
   "extensions": {}
 }

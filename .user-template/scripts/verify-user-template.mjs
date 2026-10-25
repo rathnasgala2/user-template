@@ -180,7 +180,7 @@ async function main() {
           `${page}: publication.json title ${JSON.stringify(named?.title)} is not ${JSON.stringify(shipped.title)}`,
         );
       }
-      const expectedBody = `gala/policies/${page}.md`;
+      const expectedBody = `gala/theme-pages/${page}.md`;
       if (named?.body !== expectedBody) {
         policyProblems.push(
           `${page}: publication.json body ${JSON.stringify(named?.body)} is not ${JSON.stringify(expectedBody)}`,
@@ -306,18 +306,43 @@ async function main() {
     await readdir(path.join(repositoryDirectory, "content"))
   ).filter((f) => f.endsWith(".md"));
   const starterFrontmatter = [];
-  for (const name of contentFiles) {
-    const text = await readFile(
-      path.join(repositoryDirectory, "content", name),
-      "utf8",
-    );
+  // The About page lives in gala/theme-pages/, not content/: content/ is the
+  // author's own posts and pages.
+  const ABOUT_PATH = "gala/theme-pages/about.md";
+  const aboutText = await readFile(
+    path.join(repositoryDirectory, ABOUT_PATH),
+    "utf8",
+  ).catch(() => null);
+  const aboutFrontmatter =
+    aboutText === null
+      ? undefined
+      : YAML.parse(aboutText.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? "");
+  const contentAboutPresent = await stat(
+    path.join(repositoryDirectory, "content", "about.md"),
+  ).then(
+    () => true,
+    () => false,
+  );
+  report(
+    "About page is gala/theme-pages/about.md (kind page, slug about), not content/about.md",
+    aboutFrontmatter?.kind === "page" &&
+      aboutFrontmatter?.slug === "about" &&
+      !contentAboutPresent,
+    `kind=${String(aboutFrontmatter?.kind)} slug=${String(aboutFrontmatter?.slug)} content/about.md present=${contentAboutPresent}`,
+  );
+  const starterFiles = [
+    ...contentFiles.map((name) => ({
+      label: `content/${name}`,
+      rel: `content/${name}`,
+      name,
+    })),
+    { label: ABOUT_PATH, rel: ABOUT_PATH, name: "about.md" },
+  ].filter((f) => f.rel !== ABOUT_PATH || aboutText !== null);
+  for (const { label, rel, name } of starterFiles) {
+    const text = await readFile(path.join(repositoryDirectory, rel), "utf8");
     const match = text.match(/^---\n([\s\S]*?)\n---\n/);
     if (!match) {
-      report(
-        `frontmatter: content/${name}`,
-        false,
-        "no frontmatter fence found",
-      );
+      report(`frontmatter: ${label}`, false, "no frontmatter fence found");
       continue;
     }
     const frontmatter = YAML.parse(match[1]);
@@ -327,12 +352,12 @@ async function main() {
       frontmatter,
     );
     report(
-      `frontmatter: content/${name}`,
+      `frontmatter: ${label}`,
       Boolean(result.valid),
       result.valid ? undefined : JSON.stringify(result.diagnostics),
     );
     report(
-      `starter state: content/${name}`,
+      `starter state: ${label}`,
       frontmatter.status === "published" &&
         typeof frontmatter.publishedAt === "string",
       `status=${String(frontmatter.status)} publishedAt=${String(frontmatter.publishedAt)}`,
@@ -382,7 +407,7 @@ async function main() {
   );
   report(
     "publish-action includes every published starter in a production publish",
-    publishContent.length === contentFiles.length &&
+    publishContent.length === starterFiles.length &&
       publishContent.every((item) => item.frontmatter?.status === "published"),
     JSON.stringify(publishContent.map((item) => item.frontmatter?.status)),
   );
@@ -436,10 +461,11 @@ async function main() {
     "gala/authors/placeholder-author.json",
     "gala/modules/interactions.json",
     "gala/navigation.json",
-    "gala/policies/privacy.md",
-    "gala/policies/terms.md",
     "gala/publication.json",
     "gala/repository.json",
+    "gala/theme-pages/about.md",
+    "gala/theme-pages/privacy.md",
+    "gala/theme-pages/terms.md",
   ];
   const snapshotMismatches = [];
   for (const relativePath of snapshotPaths) {

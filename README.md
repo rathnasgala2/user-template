@@ -35,8 +35,9 @@ Write your article here, in Markdown.
 
 Set `kind` to `article` for a dated piece of writing, or `page` for
 something like an About or Contact page that isn't part of your article
-feed. `welcome-to-your-publication.md` and `about.md` are two examples
-already in `content/` — read them, copy one, and start writing.
+feed. `welcome-to-your-publication.md` is an example already in `content/` —
+read it, copy it, and start writing. `content/` is for your own articles and
+pages. Your About page is not kept there; see `gala/theme-pages/` below.
 
 ## Writing: in Galascribe, or by hand
 
@@ -74,15 +75,19 @@ in the files themselves.
   `G-ABC123XYZ` is a placeholder: replace it with your own site's GA4
   measurement id.
 
-- `gala/policies/terms.md` and `gala/policies/privacy.md` — the text of your
-  site's Terms and Privacy pages, in plain Markdown, starting from sensible
-  defaults. Edit them here, or in Galascribe under Settings → Legal pages.
-  Your site shows them at `/terms` and `/privacy`, and the template adds a
+- `gala/theme-pages/` — the pages every site has. `about.md` is your About
+  page (a page like any other, with its front matter, shown at `/about`; edit
+  it in Galascribe under Settings, or here). `terms.md` and `privacy.md` are
+  the text of your site's Terms and Privacy pages, in plain Markdown, starting
+  from sensible defaults. Edit them here, or in Galascribe under Settings →
+  Legal pages. Galascribe manages this folder: it restores a file that is
+  missing and never overwrites one you have edited.
+  Your site shows Terms and Privacy at `/terms` and `/privacy`, and the template adds a
   Galascribe section after your text (Galascribe's own terms and privacy
   policy, and how reactions, comments and analytics work when you turn them
   on). You can't edit that section. Because those two addresses belong to
   these pages, do not give an article or page the slug `terms` or `privacy`.
-  `gala/publication.json` names the two files under `policies`.
+  `gala/publication.json` names the Terms and Privacy files under `policies`.
 
 - `assets/` — images and other files your publication uses that aren't
   articles or pages.

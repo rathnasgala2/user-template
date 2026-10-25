@@ -26,7 +26,7 @@ real publication.
 | `gala/authors/placeholder-author.json`   | `/displayName`                                             | The author's real display name.                                                                                                                                                                                                                                        | `PLACEHOLDER Author Name`                                                                     |
 | `gala/authors/placeholder-author.json`   | `/biography`                                               | The author's real short biography.                                                                                                                                                                                                                                     | `PLACEHOLDER writes about the craft, decisions, and people behind meaningful work.`           |
 | `content/welcome-to-your-publication.md` | frontmatter `authors[0]`                                   | Must equal the rewritten author id above.                                                                                                                                                                                                                              | `00000000-0000-7000-8000-000000000002`                                                        |
-| `content/about.md`                       | frontmatter `authors[0]`                                   | Must equal the rewritten author id above.                                                                                                                                                                                                                              | `00000000-0000-7000-8000-000000000002`                                                        |
+| `gala/theme-pages/about.md`              | frontmatter `authors[0]`                                   | Must equal the rewritten author id above.                                                                                                                                                                                                                              | `00000000-0000-7000-8000-000000000002`                                                        |
 | `.github/workflows/gala-publish-v2.yml`  | the `uses:` pin after `@` and `with.publish_toolchain_ref` | The exact `rathnasgala2/publish` commit SHA Gala tells the owner to pin in both caller fields. This is the one caller-contract value `publish/docs/callers/README.md` documents as author-replaceable; it is not Galascribe-generated data, it is a Gala-provided pin. | `c76bef4cb9817a10e56c66b1f7d599a5946d4bfa`                                                    |
 | `.github/workflows/gala-publish-v2.yml`  | `with.service_origin_catalog_url`                          | The signed Gala service-origin catalog location, provided by Gala.                                                                                                                                                                                                     | `https://api.galascribe.com/v2/service-origins`                                               |
 | `.github/workflows/gala-publish-v2.yml`  | `with.gala_api_origin`                                     | The Gala API origin used for publish authorization and reporting.                                                                                                                                                                                                      | `https://api.galascribe.com`                                                                  |
@@ -76,19 +76,28 @@ id.
 The built site shows a consent banner and loads Google Analytics 4 only after
 the reader accepts.
 
-## `gala/policies/`: editable Terms and Privacy text
+## `gala/theme-pages/`: the mandatory pages
+
+`content/` holds only the author's own posts and pages. The site's mandatory
+pages live in `gala/theme-pages/`: `about.md` (a content document with front
+matter, `kind: page`, `slug: about`, rendered at `/about`), `terms.md` and
+`privacy.md`. Galascribe manages the folder: it restores a missing file and
+never overwrites one the author edited. Nothing mandatory is kept under
+`content/`, and the verifier checks that `content/about.md` does not exist.
+
+### Terms and Privacy text
 
 `gala/publication.json` carries a `policies` member (schemas 3.16.0) naming a
 title and a repository-relative Markdown body for each page:
 
 ```json
 "policies": {
-  "terms": { "title": "Terms", "body": "gala/policies/terms.md" },
-  "privacy": { "title": "Privacy", "body": "gala/policies/privacy.md" }
+  "terms": { "title": "Terms", "body": "gala/theme-pages/terms.md" },
+  "privacy": { "title": "Privacy", "body": "gala/theme-pages/privacy.md" }
 }
 ```
 
-`gala/policies/terms.md` and `gala/policies/privacy.md` are the site's editable
+`terms.md` and `privacy.md` are the site's editable
 Terms and Privacy text (also editable in the App under Settings → Legal pages),
 and they are not placeholders: Galascribe's generation step leaves them as
 shipped. They are seeded from `@rathnasgala2/schemas/site-policy-defaults`
