@@ -27,7 +27,7 @@ real publication.
 | `gala/authors/placeholder-author.json`   | `/biography`                                               | The author's real short biography.                                                                                                                                                                                                                                     | `PLACEHOLDER writes about the craft, decisions, and people behind meaningful work.`           |
 | `content/welcome-to-your-publication.md` | frontmatter `authors[0]`                                   | Must equal the rewritten author id above.                                                                                                                                                                                                                              | `00000000-0000-7000-8000-000000000002`                                                        |
 | `gala/theme-pages/about.md`              | frontmatter `authors[0]`                                   | Must equal the rewritten author id above.                                                                                                                                                                                                                              | `00000000-0000-7000-8000-000000000002`                                                        |
-| `.github/workflows/gala-publish-v2.yml`  | the `uses:` pin after `@` and `with.publish_toolchain_ref` | The exact `rathnasgala2/publish` commit SHA Gala tells the owner to pin in both caller fields. This is the one caller-contract value `publish/docs/callers/README.md` documents as author-replaceable; it is not Galascribe-generated data, it is a Gala-provided pin. | `fe025a1c8a02ef937b8c4d12e01b1c9ee067a127`                                                    |
+| `.github/workflows/gala-publish-v2.yml`  | the `uses:` pin after `@` and `with.publish_toolchain_ref` | The exact `rathnasgala2/publish` commit SHA Gala tells the owner to pin in both caller fields. This is the one caller-contract value `publish/docs/callers/README.md` documents as author-replaceable; it is not Galascribe-generated data, it is a Gala-provided pin. | `e82a87378a53c75a162c02e7ca141452a318a451`                                                    |
 | `.github/workflows/gala-publish-v2.yml`  | `with.service_origin_catalog_url`                          | The signed Gala service-origin catalog location, provided by Gala.                                                                                                                                                                                                     | `https://api.galascribe.com/v2/service-origins`                                               |
 | `.github/workflows/gala-publish-v2.yml`  | `with.gala_api_origin`                                     | The Gala API origin used for publish authorization and reporting.                                                                                                                                                                                                      | `https://api.galascribe.com`                                                                  |
 
@@ -121,10 +121,10 @@ There is no `resolve` command in `publish-action`; its CLI exposes `validate`,
 workspace packages with `npm pack --ignore-scripts`, and every recorded SHA-256
 is the digest of the resulting local tarball. No zero or invented integrity is
 used. Its schema/template/theme selection is
-`@rathnasgala2/schemas@3.19.0`, `@rathnasgala2/template@4.4.0`, and
+`@rathnasgala2/schemas@3.21.0`, `@rathnasgala2/template@4.5.1`, and
 `@rathnasgala2/theme-default@4.2.0`.
 
-**SOURCE-ONLY DELIVERY:** schema 3.19.0, template 4.4.1, Default 4.2.0, and the
+**SOURCE-ONLY DELIVERY:** schema 3.21.0, template 4.5.1, Default 4.2.0, and the
 publish action are bound to byte-reproducible local tarballs. The publish action
 vendors and verifies the complete generation-4 toolchain before installation,
 so this delivery does not require or perform npm publication. The
@@ -133,7 +133,7 @@ that non-registry provenance and must not be rewritten to npm URLs without a
 separate registry-release decision.
 
 The reusable-workflow caller pins immutable Publish generation-4 release commit
-`fe025a1c8a02ef937b8c4d12e01b1c9ee067a127` in both fields. Never replace it
+`e82a87378a53c75a162c02e7ca141452a318a451` in both fields. Never replace it
 with a mutable branch or an invented SHA.
 
 ## Verifying
