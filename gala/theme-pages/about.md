@@ -4,7 +4,6 @@ schemaVersion: "2.0.0"
 id: 00000000-0000-7000-8000-000000000011
 kind: page
 title: About
-description: The purpose and editorial principles behind this publication.
 language: en-US
 authors:
   - 00000000-0000-7000-8000-000000000002
