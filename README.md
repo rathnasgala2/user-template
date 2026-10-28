@@ -56,7 +56,7 @@ in the files themselves.
 - `gala/navigation.json` — the links in your site's header and footer.
 - `gala/appearance.json` — which visual theme your site uses. New publications
   start with the newsletter-oriented Default theme.
-- `gala/modules/interactions.json` — likes and comments are on by default and can be changed in Galascribe under the site's settings or by editing this file.
+- `gala/modules/interactions.json` — likes, comments and the Follow button (readers follow an author) are on by default and can be changed in Galascribe under the site's settings or by editing this file.
 - `gala/modules/analytics.json` — optional; add it to turn on Google Analytics 4. The site shows a consent banner and loads Google Analytics only after the
   reader accepts. Example:
 

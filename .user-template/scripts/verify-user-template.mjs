@@ -211,6 +211,35 @@ async function main() {
       : policyProblems.join("; "),
   );
 
+  // Audience defaults (schemas 3.22.0): a new site follows authors, shares with
+  // the Copy link default, has no newsletter and no contact form, and carries
+  // no contact page introduction.
+  const seededPublication = validatedDocuments.get("gala/publication.json");
+  const seededInteractions = validatedDocuments.get(
+    "gala/modules/interactions.json",
+  );
+  const contactPageExists = await stat(
+    path.join(repositoryDirectory, "gala", "theme-pages", "contact.md"),
+  ).then(
+    () => true,
+    () => false,
+  );
+  report(
+    "audience defaults: follows on; no sharing, newsletter, contact form or contact page",
+    seededInteractions?.follows?.enabled === true &&
+      !Object.hasOwn(seededPublication ?? {}, "sharing") &&
+      !Object.hasOwn(seededPublication ?? {}, "newsletter") &&
+      !Object.hasOwn(seededPublication ?? {}, "contactForm") &&
+      !contactPageExists,
+    JSON.stringify({
+      follows: seededInteractions?.follows,
+      sharing: seededPublication?.sharing,
+      newsletter: seededPublication?.newsletter,
+      contactForm: seededPublication?.contactForm,
+      contactPageExists,
+    }),
+  );
+
   const lock = JSON.parse(
     await readFile(path.join(repositoryDirectory, "gala.lock.json"), "utf8"),
   );
@@ -218,10 +247,10 @@ async function main() {
     "lock selects the generation-4 Default toolchain",
     lock.repositorySchemaVersion === "3.8.0" &&
       lock.schemas.package === "@rathnasgala2/schemas" &&
-      lock.schemas.version === "3.21.0" &&
+      lock.schemas.version === "3.23.0" &&
       lock.schemas.compatibleWith === "^3.0.0" &&
       lock.template.package === "@rathnasgala2/template" &&
-      lock.template.version === "4.5.1" &&
+      lock.template.version === "4.6.1" &&
       lock.template.contractVersion === "4.1.0" &&
       lock.template.compatibleWith === "^4.0.0" &&
       lock.theme.package === "@rathnasgala2/theme-default" &&
