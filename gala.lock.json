@@ -19,8 +19,8 @@
   },
   "template": {
     "package": "@rathnasgala2/template",
-    "version": "4.12.0",
-    "integrity": "sha256:b9e466632fcbb073d16d036ba3382e3d6a9102d965ee704d999875e020ddef3b",
+    "version": "4.13.0",
+    "integrity": "sha256:30b825b911ab10dd5c66310b30874904d517123ed3e0d97ae3580cc4e6816509",
     "registry": "https://registry.npmjs.org/",
     "contractVersion": "4.1.0",
     "compatibleWith": "^4.0.0",
@@ -70,5 +70,5 @@
   ],
   "dependencies": [],
   "dependencyDag": [],
-  "lockDigest": "sha256:d0eb4a0bbd8df6c6f46bd5b3c341ee43fbb4fe561f55f8d2fd39a536da005d45"
+  "lockDigest": "sha256:2af62a758f0c50dd6fe72475da4e30ff8b7294b57751629eff009ecd07482cb9"
 }
