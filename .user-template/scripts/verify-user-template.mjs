@@ -408,8 +408,6 @@ async function main() {
     ) &&
       typeof starterArticle?.description === "string" &&
       starterArticle.description.length > 0 &&
-      starterArticle.tags.length > 0 &&
-      typeof starterArticle.series === "string" &&
       publication.authors.includes("gala/authors/placeholder-author.json") &&
       starterArticle.authors.includes(starterAuthor.id),
     JSON.stringify({

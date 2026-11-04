@@ -16,6 +16,8 @@ redirects: []
 extensions: {}
 ---
 
+PLACEHOLDER-SITE-TITLE is written by PLACEHOLDER-AUTHOR-NAME.
+
 This publication is a place for considered work: finished essays, useful field
 notes, and the ideas that become clearer through writing.
 

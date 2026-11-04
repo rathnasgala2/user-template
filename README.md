@@ -35,8 +35,8 @@ Write your article here, in Markdown.
 
 Set `kind` to `article` for a dated piece of writing, or `page` for
 something like an About or Contact page that isn't part of your article
-feed. `welcome-to-your-publication.md` is an example already in `content/` —
-read it, copy it, and start writing. `content/` is for your own articles and
+feed. `coming-soon.md` is a short starter note already in `content/`; copy its
+header, write your own article, and delete the note whenever you like. `content/` is for your own articles and
 pages. Your About page is not kept there; see `gala/theme-pages/` below.
 
 ## Writing: in Galascribe, or by hand
